@@ -38,7 +38,7 @@ color_palette <- c(
 selected_colors <- setNames(color_palette[1:num_clusters], as.character(1:num_clusters))
 
 # Use selected colors in annotation
-annotation_colors <- list(Cluster = color_palette)
+annotation_colors <- list(Cluster = selected_colors)
 
 
 # Order the dataset so patients from the same cluster are grouped together
@@ -63,7 +63,7 @@ pheatmap(
   cluster_cols = T,                                                           # Allow hierarchical clustering of columns
   annotation_colors = annotation_colors,                                      # Apply cluster-specific colors
   color = color_fun(seq(min(df_scaled), max(df_scaled), length.out = 100)),   # Apply custom color gradient
-  show_rownames = F,                                                          # Hide row names for clarity
+  show_rownames = T,                                                          # Hide row names for clarity
   show_colnames = T                                                           # Display column names
 )
 
