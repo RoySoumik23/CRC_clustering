@@ -38,7 +38,7 @@ color_palette <- c(
 selected_colors <- setNames(color_palette[1:num_clusters], as.character(1:num_clusters))
 
 # Use selected colors in annotation
-annotation_colors <- list(Cluster = selected_colors)
+annotation_colors <- list(Cluster = color_palette)
 
 
 # Order the dataset so patients from the same cluster are grouped together
