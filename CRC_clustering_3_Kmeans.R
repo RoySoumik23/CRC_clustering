@@ -21,25 +21,13 @@ annotations <- data.frame(Cluster = as.factor(kmean_clusters_df$`kmeans_res$clus
 rownames(annotations) <- rownames(df_scaled)
 
 # Define a palette of colors
-color_palette <- c(
-  "#FF0000",  # Pure Red
-  "#0000FF",  # Pure Blue
-  "#008000",  # Pure Green
-  "#FFA500",  # Bright Orange
-  "#800080",  # Purple
-  "#00FFFF",  # Cyan
-  "#000000",  # Black
-  "#FFFF00",  # Yellow
-  "#A52A2A",  # Brown
-  "#FFC0CB"   # Hot Pink
-)
+color_palette <- c("#AF2FD0", "#2FA0D0", "#50D02F", "#D05F2F")
 
 # Dynamically select only the number of colors needed
 selected_colors <- setNames(color_palette[1:num_clusters], as.character(1:num_clusters))
 
 # Use selected colors in annotation
 annotation_colors <- list(Cluster = selected_colors)
-
 
 # Order the dataset so patients from the same cluster are grouped together
 ordered_indices <- order(annotations$Cluster)
@@ -52,9 +40,10 @@ png(filename = file.path(filepath, "heatmap_plot_clustered.png"), width = 20, he
 # Define a custom color gradient for the heatmap
 color_fun <- colorRamp2(
   breaks = c(min(df_scaled), 0, max(df_scaled)),  # Mapping data range to colors
-  colors = c("#E817D4", "white", "#17E82B")       # Pink (low) → White (mid) → Green (high)
+  colors = c("blue", "white", "red")       # Pink (low) → White (mid) → Green (high)
 )
 
+df_scaled <- as.matrix(df_scaled)
 # Generate and save the heatmap
 pheatmap(
   df_scaled,
@@ -63,7 +52,7 @@ pheatmap(
   cluster_cols = T,                                                           # Allow hierarchical clustering of columns
   annotation_colors = annotation_colors,                                      # Apply cluster-specific colors
   color = color_fun(seq(min(df_scaled), max(df_scaled), length.out = 100)),   # Apply custom color gradient
-  show_rownames = T,                                                          # Hide row names for clarity
+  show_rownames = F,                                                          # Show row names for clarity
   show_colnames = T                                                           # Display column names
 )
 
