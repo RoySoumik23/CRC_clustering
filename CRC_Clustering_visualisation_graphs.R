@@ -375,3 +375,110 @@ p <- ggplot(df_joined_sig_whole_data, aes(x = Total.Mutation.Count, y = Cluster,
 jpeg(filename = paste0(filepath, "Ridge_MutCount_vs_cluster.jpeg"), res = 300, height = 5, width = 6, units = "in")
 print(p)
 if (dev.cur() != 1) dev.off()
+
+
+#===============================================================================
+# t-sne plot
+#===============================================================================
+
+df_scaled_sigs <- df_COSMIC
+df_clusters_kmeans <- kmean_clusters_df
+
+df_scaled_sigs <- rownames_to_column(df_scaled_sigs, var = "Patient_ID") #tibble
+df_clusters_kmeans <- rownames_to_column(df_clusters_kmeans, var = "Patient_ID") #tibble
+df_t_sne <- left_join(df_scaled_sigs, df_clusters_kmeans, by = "Patient_ID")
+colnames(df_t_sne)[colnames(df_t_sne) == "kmeans_res$cluster"] <- "Cluster"
+
+# Plot
+# Remove non-numeric columns (like IDs)
+numeric_data <- df_t_sne[, -1]  # Exclude first column (ID)
+
+# Run t-SNE
+set.seed(42)  # for reproducibility
+tsne_result <- Rtsne(as.matrix(numeric_data), dims = 2, perplexity = 2, verbose = TRUE)
+
+# Create a data frame for ggplot
+tsne_df <- data.frame(
+  X = tsne_result$Y[,1],
+  Y = tsne_result$Y[,2],
+  Label = df_t_sne$Patient_ID,
+  cluster = factor(df_t_sne$Cluster)
+)
+
+# Define custom colors for each cluster
+custom_colors <- c(
+  "1" = "#AF2FD0",
+  "2" = "#2FA0D0",
+  "3" = "#50D02F",
+  "4" = "#D05F2F"
+)
+
+# Plot
+p <- ggplot(tsne_df, aes(x = X, y = Y, color = cluster)) +  # map color to cluster variable
+  geom_point(size = 0.7) +
+  ggtitle("t-SNE Plot") +
+  theme_minimal() +
+  theme(legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10)) +
+  labs(color = "Cluster") +
+  scale_color_manual(values = custom_colors)
+
+jpeg(filename = paste0(filepath, "t-sne plot.jpeg"), res = 300, height = 5, width = 6, units = "in")
+
+print(p)
+if (dev.cur() != 1) dev.off()
+
+
+
+#===============================================================================
+# Immune based clustering
+#===============================================================================
+df_immune_clustered <- left_join(df_immune, df_cluster, by = "Patient_ID")
+df_immune_clustered <- df_immune_clustered[!is.na(df_immune_clustered$Cluster), ]
+df_immune_clustered <- df_immune_clustered[, -c(24:27, 29:30, 43, 46, 52:58, 63, 64, 66, 75, 77, 81, 83, 85:88, 92:94)]
+
+# Sort the data frame by cluster before transposing:
+df_immune_clustered <- df_immune_clustered[order(df[[ncol(df)]]), ]
+
+# Prepare data
+heat_data <- df_immune_clustered[, 2:(ncol(df_immune_clustered) - 1)]  # Select only the heatmap data
+rownames(heat_data) <- df_immune_clustered$patient_id  # Set patient IDs as rownames
+
+# Transpose so that features become rows (Y-axis) and patients are columns (X-axis)
+heat_matrix <- t(as.matrix(heat_data))
+
+# Extract cluster information for column annotation
+clusters <- df_immune_clustered[[ncol(df_immune_clustered)]]
+names(clusters) <- df_immune_clustered$patient_id
+
+# Define custom colors
+custom_colors <- c(
+  "1" = "#AF2FD0",
+  "2" = "#2FA0D0",
+  "3" = "#50D02F",
+  "4" = "#D05F2F"
+)
+
+# Create column annotation
+ha <- HeatmapAnnotation(
+  cluster = as.factor(clusters),
+  col = list(cluster = custom_colors),
+  annotation_name_side = "left"
+)
+
+# Generate heatmap
+p <- Heatmap(
+  heat_matrix,
+  name = "Expression",
+  top_annotation = ha,
+  column_split = as.factor(clusters),
+  cluster_columns = FALSE,
+  cluster_rows = TRUE,
+  show_column_names = FALSE
+)
+
+jpeg(filename = paste0(filepath, "Immune_heatmap.jpeg"), res = 300, height = 25, width = 16, units = "in")
+
+print(p)
+if (dev.cur() != 1) dev.off()
+
