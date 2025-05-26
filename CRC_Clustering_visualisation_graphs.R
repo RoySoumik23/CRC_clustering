@@ -207,6 +207,19 @@ jpeg(filename = paste0(filepath, "AgeGroup_vs_cluster.jpeg"), res = 300, height 
 print(p)
 if (dev.cur() != 1) dev.off()
 
+# Bar Plot (Simple)
+# Create a bar plot to show the distribution of Age.group across the clusters
+p<- ggplot(df_joined_sig_whole_data, aes(x = Cluster, fill = Age.group)) +
+  geom_bar(position = "fill") +  # position = "fill" makes the bars proportionate
+  labs(title = "Age Group Distribution Across Clusters",
+       x = "Cluster", y = "Proportion") +
+  scale_fill_manual(values = c("≤ 65" = "skyblue", "66-79" = "orange", "≥ 80" = "purple")) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate axis labels for better readability
+jpeg(filename = paste0(filepath, "Age_percentage_vs_cluster.jpeg"), res = 300, height = 5, width = 5, units = "in")
+print(p)
+if (dev.cur() != 1) dev.off()
+
 # Anatomic.Organ.Subdivision by Cluster----
 pval <- chisq.test(table(df_joined_sig_whole_data$Anatomic.Organ.Subdivision, df_joined_sig_whole_data$Cluster))$p.value
 
@@ -481,4 +494,3 @@ jpeg(filename = paste0(filepath, "Immune_heatmap.jpeg"), res = 300, height = 25,
 
 print(p)
 if (dev.cur() != 1) dev.off()
-
