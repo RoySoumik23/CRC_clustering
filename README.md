@@ -21,7 +21,7 @@ This repository contains R scripts and supplementary data for clustering analysi
 
 ## Usage
 1. Clone the repository:
-git clone (https://github.com/RoySoumik23/CRC_clustering.git)[https://github.com/RoySoumik23/CRC_clustering.git]
+git clone [https://github.com/RoySoumik23/CRC_clustering.git]
 2. Open the R scripts in your R environment.
 3. Install any missing packages using `install.packages()` or Bioconductor if needed.
 4. Load the supplementary data files as required by the scripts.
