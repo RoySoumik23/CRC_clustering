@@ -494,3 +494,79 @@ jpeg(filename = paste0(filepath, "Immune_heatmap.jpeg"), res = 300, height = 25,
 
 print(p)
 if (dev.cur() != 1) dev.off()
+
+
+#===============================================================================
+# Driver Gene mutation box plot
+#===============================================================================
+
+# Read input data from CSV file
+data <- read.csv("Immune_Whole_data.csv")
+
+# Ensure 'Cluster' is treated as a categorical variable
+data$Cluster <- as.factor(data$Cluster)
+
+# Define custom color palette for each cluster
+custom_colors <- c(
+  "1" = "#AF2FD0",
+  "2" = "#2FA0D0",
+  "3" = "#50D02F",
+  "4" = "#D05F2F"
+)
+
+# Create boxplot with overlaid jittered points and statistical comparisons
+p <- ggplot(data, aes(x = Cluster, y = Mutated.Driver.Genes, fill = Cluster)) +
+  
+  # Draw boxplots with reduced edge thickness and transparent fill
+  geom_boxplot(size = 0.3,
+               alpha = 0.7,
+               outlier.shape = NA) +
+  
+  # Add individual data points with jitter for visibility
+  geom_jitter(
+    aes(color = Cluster),
+    position = position_jitter(width = 0),
+    size = 0.5,
+    alpha = 0.6
+  ) +
+  
+  # Apply custom colors to both fill and jitter points
+  scale_fill_manual(values = custom_colors) +
+  scale_color_manual(values = custom_colors) +
+  
+  # Set plot labels
+  labs(title = "Driver Gene Mutations per Cluster", x = "Cluster", y = "Number of Driver Genes Mutated") +
+  
+  # Adjust overall theme and styling
+  theme_minimal(base_size = 9) +
+  theme(
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 10),
+    axis.text = element_text(size = 8),
+    legend.title = element_text(size = 5),
+    legend.text = element_text(size = 3),
+    legend.position = "right"
+  ) +
+  
+  # Perform and display pairwise t-tests with p-values between clusters
+  stat_compare_means(
+    comparisons = list(
+      c("1", "2"),
+      c("1", "3"),
+      c("1", "4"),
+      c("2", "3"),
+      c("2", "4"),
+      c("3", "4")
+    ),
+    method = "t.test",
+    label = "p",
+    size = 2,
+    step.increase = 0.1,
+    hide.ns = TRUE
+  )
+
+# Save the resulting plot as a high-resolution JPEG file
+jpeg(filename = paste0(filepath, "DriverGeneMutations_Boxplot_Pvalues.jpeg"), res = 300, height = 25, width = 16, units = "in")
+
+print(p)
+if (dev.cur() != 1) dev.off()
